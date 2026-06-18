@@ -8,5 +8,9 @@
  *
  * 🟢 You can import this file directly.
  */
-export type * from './models/users.ts'
+export type * from './models/User.ts'
+export type * from './models/Post.ts'
+export type * from './models/Teacher.ts'
+export type * from './models/Event.ts'
+export type * from './models/GalleryImage.ts'
 export type * from './commonInputTypes.ts'
