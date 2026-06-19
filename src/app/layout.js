@@ -1,6 +1,9 @@
 // app/layout.js
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import SessionProvider from "@/components/SessionProvider";
 
 // Plain JavaScript object for SEO configuration
 export const metadata = {
@@ -9,11 +12,13 @@ export const metadata = {
 };
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await getServerSession(authOptions);
+
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <main>{children}</main>
+    <html lang="id">
+      <body>
+        <SessionProvider session={session}>{children}</SessionProvider>
       </body>
     </html>
   );
