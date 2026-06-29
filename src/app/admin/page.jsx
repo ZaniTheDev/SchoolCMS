@@ -1,4 +1,4 @@
-import StatCard from "@/components/admin/StatCard.jsx";
+import StatCard from "../../components/Admin/StatCard";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
