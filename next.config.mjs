@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
-  reactCompiler: false,
   images: {
-    domains: ["i.pinimg.com", "res.cloudinary.com"],
+    remotePatterns: [
+      { protocol: "https", hostname: "i.pinimg.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+    ],
   },
 };
 
