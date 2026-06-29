@@ -12,7 +12,7 @@ const NAV_LINKS = [
   { label: "Teachers", href: "/teachers" },
   { label: "Gallery", href: "/gallery" },
   { label: "Contact", href: "/contact" },
-  { label: "Login", href: "/Login" },
+  { label: "Login", href: "/login" },
 ];
 
 // Arctic theme tokens
