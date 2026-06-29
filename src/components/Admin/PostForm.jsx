@@ -34,6 +34,22 @@ function toSlug(str) {
     .replace(/\s+/g, "-");
 }
 
+// ── Cloudinary upload helper ──────────────────────────────────────
+async function uploadToCloudinary(file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("folder", "thumbnails");
+
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
+
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message || "Upload gagal");
+  return json.data.url;
+}
+
 export default function PostForm({ post }) {
   const router = useRouter();
   const isEdit = !!post;
@@ -46,6 +62,10 @@ export default function PostForm({ post }) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
+
+  // ── Thumbnail upload state (new) ──────────────────────────────
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   const editor = useEditor({
     extensions: [StarterKit, Image, Link.configure({ openOnClick: false })],
@@ -133,6 +153,32 @@ export default function PostForm({ post }) {
     const url = prompt("URL link:");
     if (url) editor?.chain().focus().setLink({ href: url }).run();
   }, [editor]);
+
+  // ── Thumbnail file handler (new) ──────────────────────────────
+  const handleThumbnailFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Hanya file gambar yang diizinkan");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Ukuran file maksimal 5MB");
+      return;
+    }
+
+    setUploadError("");
+    setUploading(true);
+    try {
+      const url = await uploadToCloudinary(file);
+      setThumbnail(url);
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -283,23 +329,53 @@ export default function PostForm({ post }) {
 
       {/* Thumbnail + Settings */}
       <div className="bg-white rounded-2xl border border-[#ddeef8] shadow-sm p-6 space-y-5">
+        {/* ── Thumbnail upload (replaced from URL input) ── */}
         <div>
           <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
-            URL Thumbnail
+            Thumbnail
           </label>
-          <input
-            type="text"
-            value={thumbnail}
-            onChange={(e) => setThumbnail(e.target.value)}
-            placeholder="https://..."
-            className="w-full text-sm border border-[#ddeef8] rounded-xl px-4 py-2.5 focus:outline-none focus:border-[#06b6d4] text-[#1e3a5f] placeholder:text-[#cbd5e1]"
-          />
-          {thumbnail && (
-            <img
-              src={thumbnail}
-              alt="preview"
-              className="mt-3 h-32 w-full object-cover rounded-xl border border-[#ddeef8]"
-            />
+
+          {thumbnail ? (
+            <div className="relative">
+              <img
+                src={thumbnail}
+                alt="preview"
+                className="h-32 w-full object-cover rounded-xl border border-[#ddeef8]"
+              />
+              <button
+                type="button"
+                onClick={() => setThumbnail("")}
+                className="absolute top-2 right-2 text-xs font-semibold bg-white text-red-500 border border-red-200 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
+              >
+                Hapus
+              </button>
+            </div>
+          ) : (
+            <label
+              className={`flex flex-col items-center justify-center gap-1 w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
+                uploading
+                  ? "border-[#06b6d4] bg-[#f0fdff]"
+                  : "border-[#ddeef8] hover:border-[#06b6d4] hover:bg-[#f8fbff]"
+              }`}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailFile}
+                disabled={uploading}
+                className="hidden"
+              />
+              <span className="text-sm font-medium text-[#64748b]">
+                {uploading ? "Mengupload..." : "Klik untuk pilih gambar"}
+              </span>
+              <span className="text-xs text-[#94a3b8]">
+                JPG, PNG, WebP · Maks 5MB
+              </span>
+            </label>
+          )}
+
+          {uploadError && (
+            <p className="mt-2 text-xs text-red-500">{uploadError}</p>
           )}
         </div>
 

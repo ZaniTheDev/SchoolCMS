@@ -54,6 +54,13 @@ export default function LoginPage() {
         return;
       }
 
+      // signIn with redirect: false returns undefined on success,
+      // but may also return undefined on some errors without setting .error
+      if (!result) {
+        setError(ERROR_MESSAGES.Default);
+        return;
+      }
+
       // Always redirect to /admin after successful login
       router.push("/admin");
       router.refresh();

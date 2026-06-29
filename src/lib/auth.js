@@ -16,33 +16,43 @@ export const authOptions = {
           return null;
         }
 
-        const email = credentials.email.trim().toLowerCase();
+        try {
+          const email = credentials.email.trim().toLowerCase();
 
-        const user = await prisma.user.findUnique({
-          where: { email },
-        });
+          const user = await prisma.user.findUnique({
+            where: { email },
+          });
 
-        if (!user) {
+          if (!user) {
+            return null;
+          }
+
+          const passwordMatch = await bcrypt.compare(
+            credentials.password,
+            user.password,
+          );
+
+          if (!passwordMatch) {
+            return null;
+          }
+
+          // Only allow ADMIN accounts to sign in
+          if (user.role !== "ADMIN") {
+            return null;
+          }
+
+          console.log("DEBUG authorize user.id:", user.id);
+
+          return {
+            id: user.id,
+            email,
+            name: user.name,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error("Auth authorize error:", error);
           return null;
         }
-
-        const passwordMatch = await bcrypt.compare(
-          credentials.password,
-          user.password,
-        );
-
-        if (!passwordMatch) {
-          return null;
-        }
-
-        console.log("DEBUG authorize user.id:", user.id);
-
-        return {
-          id: user.id,
-          email,
-          name: user.name,
-          role: user.role,
-        };
       },
     }),
   ],
