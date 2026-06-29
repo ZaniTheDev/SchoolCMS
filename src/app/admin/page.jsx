@@ -1,73 +1,10 @@
-import StatCard from "@/components/admin/StatCard";
+import StatCard from "@/components/admin/StatCard.jsx";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/components/Admin/LogoutButton";
-// ---------------------------------------------------------------------------
-// Mock data — replace with real API calls when integration is requested
-// ---------------------------------------------------------------------------
-
-const stats = {
-  posts: 24,
-  teachers: 18,
-  events: 7,
-  gallery: 142,
-};
-
-const recentPosts = [
-  {
-    id: "1",
-    title: "Selamat Datang Tahun Ajaran Baru 2024/2025",
-    author: "Admin Sekolah",
-    publishedAt: "2024-07-15",
-    slug: "selamat-datang-tahun-ajaran-baru",
-  },
-  {
-    id: "2",
-    title: "Pengumuman Jadwal Ujian Tengah Semester",
-    author: "Tata Usaha",
-    publishedAt: "2024-07-12",
-    slug: "jadwal-ujian-tengah-semester",
-  },
-  {
-    id: "3",
-    title: "Hasil Seleksi Olimpiade Sains Tingkat Kabupaten",
-    author: "Admin Sekolah",
-    publishedAt: "2024-07-09",
-    slug: "hasil-seleksi-olimpiade-sains",
-  },
-  {
-    id: "4",
-    title: "Pendaftaran Ekstrakurikuler Semester Ganjil Dibuka",
-    author: "Wakasek Kesiswaan",
-    publishedAt: "2024-07-05",
-    slug: "pendaftaran-ekstrakurikuler-ganjil",
-  },
-];
-
-const upcomingEvents = [
-  {
-    id: "1",
-    title: "Masa Orientasi Peserta Didik Baru",
-    date: "2024-07-22",
-  },
-  {
-    id: "2",
-    title: "Upacara Peringatan Hari Kemerdekaan",
-    date: "2024-08-17",
-  },
-  {
-    id: "3",
-    title: "Pameran Karya Siswa & Expo Sekolah",
-    date: "2024-08-24",
-  },
-  {
-    id: "4",
-    title: "Rapat Komite Sekolah Triwulan III",
-    date: "2024-09-03",
-  },
-];
+import prisma from "@/lib/prisma";
 
 const quickActions = [
   {
@@ -104,16 +41,16 @@ const quickActions = [
 // Helpers
 // ---------------------------------------------------------------------------
 
-function formatDate(dateStr) {
-  return new Date(dateStr).toLocaleDateString("id-ID", {
+function formatDate(date) {
+  return new Date(date).toLocaleDateString("id-ID", {
     day: "numeric",
     month: "long",
     year: "numeric",
   });
 }
 
-function formatEventDate(dateStr) {
-  const d = new Date(dateStr);
+function formatEventDate(date) {
+  const d = new Date(date);
   return {
     day: d.toLocaleDateString("id-ID", { day: "2-digit" }),
     month: d.toLocaleDateString("id-ID", { month: "short" }),
@@ -129,13 +66,46 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  // Check authentication - this is now inside the async function
+  // Check authentication
   const session = await getServerSession(authOptions);
   const user = session?.user ?? null;
 
   if (!user || user.role !== "ADMIN") {
     redirect("/login");
   }
+
+  // Fetch real data from the database
+  const [
+    postCount,
+    teacherCount,
+    eventCount,
+    galleryCount,
+    recentPosts,
+    upcomingEvents,
+  ] = await Promise.all([
+    prisma.post.count(),
+    prisma.teacher.count(),
+    prisma.event.count(),
+    prisma.galleryImage.count(),
+    prisma.post.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      include: { author: { select: { name: true } } },
+    }),
+    prisma.event.findMany({
+      where: { date: { gte: new Date() } },
+      orderBy: { date: "asc" },
+      take: 5,
+    }),
+  ]);
+
+  const stats = {
+    posts: postCount,
+    teachers: teacherCount,
+    events: eventCount,
+    gallery: galleryCount,
+  };
+
   return (
     <div className="min-h-screen bg-[#f0f7ff]">
       {/* ------------------------------------------------------------------ */}
@@ -299,35 +269,41 @@ export default async function AdminDashboardPage() {
                 </Link>
               </div>
               <div className="divide-y divide-[#f0f7ff]">
-                {recentPosts.map((post) => (
-                  <div
-                    key={post.id}
-                    className="px-6 py-4 hover:bg-[#f8fbff] transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <Link
-                          href={`/admin/posts/${post.id}/edit`}
-                          className="text-sm font-semibold text-[#1e3a5f] hover:text-[#06b6d4] transition-colors line-clamp-2 leading-snug"
-                        >
-                          {post.title}
-                        </Link>
-                        <p className="text-xs text-[#94a3b8] mt-1.5">
-                          oleh{" "}
-                          <span className="text-[#64748b] font-medium">
-                            {post.author}
-                          </span>
-                        </p>
-                      </div>
-                      <time
-                        dateTime={post.publishedAt}
-                        className="text-xs text-[#94a3b8] flex-shrink-0 mt-0.5 text-right whitespace-nowrap"
-                      >
-                        {formatDate(post.publishedAt)}
-                      </time>
-                    </div>
+                {recentPosts.length === 0 ? (
+                  <div className="px-6 py-8 text-center text-sm text-[#94a3b8]">
+                    Belum ada postingan.
                   </div>
-                ))}
+                ) : (
+                  recentPosts.map((post) => (
+                    <div
+                      key={post.id}
+                      className="px-6 py-4 hover:bg-[#f8fbff] transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <Link
+                            href={`/admin/posts/${post.id}/edit`}
+                            className="text-sm font-semibold text-[#1e3a5f] hover:text-[#06b6d4] transition-colors line-clamp-2 leading-snug"
+                          >
+                            {post.title}
+                          </Link>
+                          <p className="text-xs text-[#94a3b8] mt-1.5">
+                            oleh{" "}
+                            <span className="text-[#64748b] font-medium">
+                              {post.author?.name || "Unknown"}
+                            </span>
+                          </p>
+                        </div>
+                        <time
+                          dateTime={post.createdAt?.toISOString()}
+                          className="text-xs text-[#94a3b8] flex-shrink-0 mt-0.5 text-right whitespace-nowrap"
+                        >
+                          {formatDate(post.createdAt)}
+                        </time>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </section>
 
@@ -348,27 +324,33 @@ export default async function AdminDashboardPage() {
                 </Link>
               </div>
               <div className="divide-y divide-[#f0f7ff]">
-                {upcomingEvents.map((event) => {
-                  const { day, month } = formatEventDate(event.date);
-                  return (
-                    <div
-                      key={event.id}
-                      className="px-6 py-4 flex items-center gap-4 hover:bg-[#f8fbff] transition-colors"
-                    >
-                      <div className="w-11 h-11 rounded-xl bg-[#e8f4fd] flex flex-col items-center justify-center flex-shrink-0">
-                        <span className="text-[#1e3a5f] font-bold text-sm leading-none">
-                          {day}
-                        </span>
-                        <span className="text-[#06b6d4] font-semibold text-[10px] uppercase tracking-wide leading-none mt-0.5">
-                          {month}
-                        </span>
+                {upcomingEvents.length === 0 ? (
+                  <div className="px-6 py-8 text-center text-sm text-[#94a3b8]">
+                    Belum ada acara mendatang.
+                  </div>
+                ) : (
+                  upcomingEvents.map((event) => {
+                    const { day, month } = formatEventDate(event.date);
+                    return (
+                      <div
+                        key={event.id}
+                        className="px-6 py-4 flex items-center gap-4 hover:bg-[#f8fbff] transition-colors"
+                      >
+                        <div className="w-11 h-11 rounded-xl bg-[#e8f4fd] flex flex-col items-center justify-center flex-shrink-0">
+                          <span className="text-[#1e3a5f] font-bold text-sm leading-none">
+                            {day}
+                          </span>
+                          <span className="text-[#06b6d4] font-semibold text-[10px] uppercase tracking-wide leading-none mt-0.5">
+                            {month}
+                          </span>
+                        </div>
+                        <p className="text-sm font-semibold text-[#1e3a5f] leading-snug line-clamp-2 min-w-0">
+                          {event.title}
+                        </p>
                       </div>
-                      <p className="text-sm font-semibold text-[#1e3a5f] leading-snug line-clamp-2 min-w-0">
-                        {event.title}
-                      </p>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </section>
           </div>

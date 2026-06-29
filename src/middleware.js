@@ -1,5 +1,3 @@
-// middleware.js
-
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
@@ -10,15 +8,6 @@ export async function middleware(req) {
     req,
     secret: process.env.NEXTAUTH_SECRET,
   });
-
-  // DEBUG — remove after fixing
-  console.log("=== MIDDLEWARE ===");
-  console.log("pathname:", pathname);
-  console.log("token:", JSON.stringify(token));
-  console.log(
-    "cookies:",
-    req.cookies.getAll().map((c) => c.name),
-  );
 
   const isAdminRoute = pathname.startsWith("/admin");
   const isLoginPage = pathname === "/login";

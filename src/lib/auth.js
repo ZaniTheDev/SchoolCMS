@@ -16,8 +16,10 @@ export const authOptions = {
           return null;
         }
 
+        const email = credentials.email.trim().toLowerCase();
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email },
         });
 
         if (!user) {
@@ -33,9 +35,11 @@ export const authOptions = {
           return null;
         }
 
+        console.log("DEBUG authorize user.id:", user.id);
+
         return {
           id: user.id,
-          email: user.email,
+          email,
           name: user.name,
           role: user.role,
         };
@@ -44,20 +48,28 @@ export const authOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      console.log("DEBUG jwt user:", JSON.stringify(user));
+      console.log("DEBUG jwt token.sub before:", token.sub);
       if (user) {
         token.role = user.role;
+        token.id = user.id;
+        token.sub = user.id;
+        token.email = user.email?.toLowerCase?.() ?? user.email;
       }
+      console.log("DEBUG jwt token.sub after:", token.sub);
       return token;
     },
     async session({ session, token }) {
       if (session?.user) {
         session.user.role = token.role;
+        session.user.id = token.id ?? token.sub ?? "";
+        session.user.email = token.email ?? session.user.email;
       }
       return session;
     },
   },
   pages: {
-    signIn: "/admin/login",
+    signIn: "/login",
   },
   session: {
     strategy: "jwt",

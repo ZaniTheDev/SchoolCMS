@@ -351,7 +351,7 @@ function NewsCard({ article }) {
 }
 
 // ── Main section ──────────────────────────────────────────────────
-export default function LatestNews({ featured = FEATURED, news = NEWS }) {
+export default function LatestNews({ featured, news }) {
   const sectionRef = useRef(null);
   const badgeRef = useRef(null);
   const headingRef = useRef(null);
