@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Events
+ * const events = await prisma.event.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -42,10 +42,15 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model User
+ * Model Event
  * 
  */
-export type User = Prisma.UserModel
+export type Event = Prisma.EventModel
+/**
+ * Model GalleryImage
+ * 
+ */
+export type GalleryImage = Prisma.GalleryImageModel
 /**
  * Model Post
  * 
@@ -57,12 +62,7 @@ export type Post = Prisma.PostModel
  */
 export type Teacher = Prisma.TeacherModel
 /**
- * Model Event
+ * Model User
  * 
  */
-export type Event = Prisma.EventModel
-/**
- * Model GalleryImage
- * 
- */
-export type GalleryImage = Prisma.GalleryImageModel
+export type User = Prisma.UserModel

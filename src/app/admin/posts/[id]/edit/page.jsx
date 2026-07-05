@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
-import prisma from "@/lib/prisma";
+import prisma from "lib/prisma";
 import PostForm from "@/components/Admin/PostForm";
 import Link from "next/link";
 import LogoutButton from "@/components/Admin/LogoutButton";

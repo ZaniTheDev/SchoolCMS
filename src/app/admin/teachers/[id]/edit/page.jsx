@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
-import prisma from "@/lib/prisma";
+import prisma from "lib/prisma";
 import TeacherForm from "@/components/Admin/TeacherForm";
 import Link from "next/link";
 import LogoutButton from "@/components/Admin/LogoutButton";
@@ -90,9 +90,7 @@ export default async function EditTeacherPage({ params }) {
               ← Guru & Staf
             </Link>
             <span className="text-[#cbd5e1]">/</span>
-            <h1 className="text-sm font-semibold text-[#1e3a5f]">
-              Edit Guru
-            </h1>
+            <h1 className="text-sm font-semibold text-[#1e3a5f]">Edit Guru</h1>
           </div>
           <TeacherForm initialData={teacher} />
         </div>

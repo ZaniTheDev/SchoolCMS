@@ -501,9 +501,12 @@ export default function LatestNews({ featured, news }) {
         </div>
 
         {/* ── Featured article ── */}
-        <div ref={featuredRef} className="opacity-0">
-          <FeaturedCard article={featured} />
-        </div>
+
+        {featured && (
+          <div ref={featuredRef} className="opacity-0">
+            <FeaturedCard article={featured} />
+          </div>
+        )}
 
         {/* ── Divider with label ── */}
         <div className="flex items-center gap-4" aria-hidden="true">

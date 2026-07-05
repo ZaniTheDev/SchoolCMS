@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import LogoutButton from "@/components/Admin/LogoutButton";
-import prisma from "@/lib/prisma";
+import prisma from "../../../lib/prisma";
 
 const quickActions = [
   {
@@ -90,7 +90,7 @@ export default async function AdminDashboardPage() {
     prisma.post.findMany({
       orderBy: { createdAt: "desc" },
       take: 5,
-      include: { author: { select: { name: true } } },
+      include: { User: { select: { name: true } } },
     }),
     prisma.event.findMany({
       where: { date: { gte: new Date() } },
@@ -290,7 +290,7 @@ export default async function AdminDashboardPage() {
                           <p className="text-xs text-[#94a3b8] mt-1.5">
                             oleh{" "}
                             <span className="text-[#64748b] font-medium">
-                              {post.author?.name || "Unknown"}
+                              {post.User?.name || "Unknown"}
                             </span>
                           </p>
                         </div>

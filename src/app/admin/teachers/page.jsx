@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import prisma from "@/lib/prisma";
+import prisma from "lib/prisma";
 import Link from "next/link";
 import LogoutButton from "@/components/Admin/LogoutButton";
 
@@ -151,11 +151,7 @@ export default async function TeachersPage() {
                             Edit
                           </Link>
                           <form action={deleteTeacher}>
-                            <input
-                              type="hidden"
-                              name="id"
-                              value={teacher.id}
-                            />
+                            <input type="hidden" name="id" value={teacher.id} />
                             <button
                               type="submit"
                               className="text-xs font-medium text-red-500 hover:text-red-700 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors"

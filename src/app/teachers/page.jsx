@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import prisma from "lib/prisma";
 import Navbar from "@/components/public/Navbar";
 import TeacherCard from "@/components/public/TeacherCard";
 

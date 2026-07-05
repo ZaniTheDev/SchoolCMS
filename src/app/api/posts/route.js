@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import prisma from "lib/prisma";
 import { getToken } from "next-auth/jwt";
 import bcrypt from "bcryptjs";
 
@@ -24,7 +24,7 @@ export async function GET(request) {
         skip,
         take: limit,
         include: {
-          author: {
+          User: {
             select: {
               id: true,
               name: true,
@@ -97,59 +97,61 @@ export async function POST(request) {
 
     let authorId = token?.sub;
 
-    if (!authorId && email) {
-      authorId = (
-        await prisma.user.findUnique({
-          where: { email },
-        })
-      )?.id;
+    // If authorId from token is set, verify the user exists
+    if (authorId) {
+      const userExists = await prisma.user.findUnique({ where: { id: authorId } });
+      if (!userExists) {
+        authorId = null; // invalidate and try other methods
+      }
     }
 
+    // Fall back to email lookup if no valid authorId
+    if (!authorId && email) {
+      const user = await prisma.user.findUnique({
+        where: { email },
+      });
+      if (user?.id) {
+        authorId = user.id;
+      }
+    }
+
+    // Development fallback: find or create admin/dev user
     if (!authorId && process.env.NODE_ENV !== "production") {
       const fallbackAdmin = await prisma.user.findFirst({
         where: { role: "ADMIN" },
         orderBy: { createdAt: "asc" },
       });
-
       if (fallbackAdmin?.id) {
         authorId = fallbackAdmin.id;
-      }
-    }
-
-    if (!authorId && process.env.NODE_ENV !== "production") {
-      const fallbackUser = await prisma.user.findFirst({
-        orderBy: { createdAt: "asc" },
-      });
-
-      if (fallbackUser?.id) {
-        authorId = fallbackUser.id;
-      }
-    }
-
-    if (!authorId && process.env.NODE_ENV !== "production") {
-      const devEmail = email ?? "dev-admin@localhost.local";
-      const existingDevUser = await prisma.user.findUnique({
-        where: { email: devEmail },
-      });
-
-      if (existingDevUser?.id) {
-        authorId = existingDevUser.id;
       } else {
-        const hashedPassword = await bcrypt.hash(
-          "dev-only-placeholder-password",
-          10,
-        );
-
-        const createdFallbackUser = await prisma.user.create({
-          data: {
-            name: token?.name ?? "Developer Admin",
-            email: devEmail,
-            password: hashedPassword,
-            role: "ADMIN",
-          },
+        const fallbackUser = await prisma.user.findFirst({
+          orderBy: { createdAt: "asc" },
         });
-
-        authorId = createdFallbackUser.id;
+        if (fallbackUser?.id) {
+          authorId = fallbackUser.id;
+        } else {
+          const devEmail = email ?? "dev-admin@localhost.local";
+          const existingDevUser = await prisma.user.findUnique({
+            where: { email: devEmail },
+          });
+          if (existingDevUser?.id) {
+            authorId = existingDevUser.id;
+          } else {
+            const hashedPassword = await bcrypt.hash(
+              "dev-only-placeholder-password",
+              10,
+            );
+            const createdFallbackUser = await prisma.user.create({
+              data: {
+                name: token?.name ?? "Developer Admin",
+                email: devEmail,
+                password: hashedPassword,
+                role: "ADMIN",
+              },
+            });
+            authorId = createdFallbackUser.id;
+          }
+        }
       }
     }
 
@@ -179,9 +181,10 @@ export async function POST(request) {
         thumbnail,
         publishedAt: publishedAt ? new Date(publishedAt) : null,
         authorId,
+        updatedAt: new Date(),
       },
       include: {
-        author: {
+        User: {
           select: {
             id: true,
             name: true,
