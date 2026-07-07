@@ -27,11 +27,13 @@ The frontend lives under `src/app` and `src/components`.
   - `/news` news page
   - `/news/[slug]` post detail page (Next.js 16 async params)
   - `/login` login page
+  - `/teachers` teachers page
 - Admin pages:
   - `/admin` dashboard
   - `/admin/posts` posts list
-  - `/admin/posts/new` create post
   - `/admin/posts/[id]/edit` edit post
+  - `/admin/teachers` teachers list
+  - `/admin/teachers/[id]/edit` edit teacher
 
 The public UI uses reusable components:
 
@@ -39,12 +41,17 @@ The public UI uses reusable components:
 - `src/components/public/Hero.jsx`
 - `src/components/public/About.jsx`
 - `src/components/public/PostDetails.jsx`
+- `src/components/public/TeacherCard.jsx`
+- `src/components/public/News.jsx`
 
 The admin UI uses:
 
 - `src/components/Admin/StatCard.jsx`
 - `src/components/Admin/LogoutButton.jsx`
 - `src/components/Admin/PostForm.jsx` — TipTap rich text editor form
+- `src/components/Admin/TeacherForm.jsx`
+- `src/components/Admin/GalleryUploader.jsx`
+- `src/components/Admin/DeleteTeacherButton.jsx`
 
 ### Backend
 
@@ -58,6 +65,7 @@ Collections currently supported:
 - gallery images
 - auth
 - settings
+- upload
 
 ### Data Layer
 
@@ -80,6 +88,9 @@ src/
         page.jsx
         new/page.jsx
         [id]/edit/page.jsx
+      teachers/
+        page.jsx
+        [id]/edit/page.jsx
     api/
       auth/
         logout/route.ts
@@ -98,6 +109,10 @@ src/
       teachers/
         route.js
         [id]/route.js
+      upload/
+        route.js
+      debug-token/
+        route.js
       [id]/route.js          # Legacy — should be removed
     login/
       page.jsx
@@ -106,6 +121,15 @@ src/
       page.jsx
       News.jsx
       [slug]/page.jsx
+    teachers/
+      page.jsx
+    admin/posts/
+      page.jsx
+      new/page.jsx
+      [id]/edit/page.jsx
+    admin/teachers/
+      page.jsx
+      [id]/edit/page.jsx
     layout.js
     page.jsx
     globals.css
@@ -115,22 +139,27 @@ src/
       LogoutButton.jsx
       PostForm.jsx
       StatCard.jsx
+      TeacherForm.jsx
+      GalleryUploader.jsx
+      DeleteTeacherButton.jsx
     public/
       About.jsx
       Hero.jsx
       Navbar.jsx
       PostDetails.jsx
+      TeacherCard.jsx
+      News.jsx
   lib/
     auth.js
     prisma.js
-lib/
-  prisma.js
-prisma/
-  schema.prisma
-  migrations/
-generated/
+  lib/
+    prisma.js
   prisma/
-public/
+    schema.prisma
+    migrations/
+  generated/
+    prisma/
+  public/
 ```
 
 ## Database Models
@@ -256,6 +285,12 @@ List endpoints nest data under `data.posts` (or `data.teachers`, etc.) with `dat
 | POST | `/api/auth/logout` | Confirms logout (client-side signOut clears cookies) |
 | GET/POST | `/api/auth/[...nextauth]` | NextAuth handler |
 
+### Upload
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/upload` | admin | File upload handler |
+
 ## Authentication Flow
 
 Configured in `src/lib/auth.js`. Uses NextAuth v4 with JWT strategy and credentials provider.
@@ -320,7 +355,15 @@ Debug logs remain in `src/lib/auth.js` — check terminal after login to see the
 
 Returns static data, does not persist to database.
 
-### 5. Mixed file extensions
+### 5. File upload missing from docs
+
+Upload route exists at `/api/upload` but missing from original API routes documentation.
+
+### 6. Debug token endpoint
+
+Debug endpoint at `/api/debug-token` exists for debugging token issues.
+
+### 7. Mixed file extensions
 
 Most files use `.js`/`.jsx`, but `src/app/api/auth/logout/route.ts` uses `.ts`.
 
@@ -375,31 +418,37 @@ const { slug } = await params;  // NOT params.slug
 - JWT session role handling
 - Role-based admin access control
 - Admin post CRUD (list, create, edit pages with TipTap editor)
+- Admin teacher CRUD (list, create, edit pages)
+- Admin gallery uploader
 - CRUD APIs for posts, teachers, events, gallery images
+- File upload functionality
 - Pagination on list endpoints
 - Published/upcoming filters on some endpoints
 - Logout action in admin UI
 - Server-side session validation in admin pages
+- Debug token endpoint for troubleshooting
 
 ## Missing Features
 
 - Public pages for: `/events`, `/teachers`, `/gallery`, `/contact`
-- Admin CRUD pages for: teachers, events, gallery
+- Admin CRUD pages for: events, gallery
 - Real settings storage
-- File upload workflow for gallery/media
 - User management screens
 - Validation layer for API inputs (e.g., zod)
 - Automated tests
+- Delete teacher functionality (incomplete)
 
 ## Recommended Next Steps
 
 1. **Fix the JWT `sub` issue** — remove debug logs, ensure `token.sub` is populated so `authorId` resolves directly from the token.
 2. Remove the legacy `src/app/api/[id]/route.js` file.
-3. Implement the missing public pages and admin CRUD screens.
-4. Add a real settings table and persist settings to the database.
-5. Add input validation (e.g., zod) to all API routes.
-6. Add automated tests.
-7. Standardize file extensions.
+3. Implement missing public pages (`/events`, `/teachers`, `/gallery`, `/contact`).
+4. Complete admin CRUD for events and gallery.
+5. Add a real settings table and persist settings to the database.
+6. Add input validation (e.g., zod) to all API routes.
+7. Add automated tests.
+8. Complete delete teacher functionality.
+9. Standardize file extensions.
 
 ## Development Notes
 
@@ -409,4 +458,8 @@ const { slug } = await params;  // NOT params.slug
 - Keep auth checks aligned between middleware, route handlers, and UI.
 - The admin dashboard at `src/app/admin/page.jsx` fetches real data from the database.
 - The post form at `src/components/Admin/PostForm.jsx` uses TipTap rich text editor.
+- The teacher form at `src/components/Admin/TeacherForm.jsx` handles teacher CRUD.
+- The gallery uploader at `src/components/Admin/GalleryUploader.jsx` handles image uploads.
 - API error responses use `{ success: false, message: "..." }` — read `data.message` in catch blocks, not `data.error`.
+- The debug token endpoint at `/api/debug-token` helps troubleshoot JWT token issues.
+- All admin routes require `role: "ADMIN"` in JWT token for access.
