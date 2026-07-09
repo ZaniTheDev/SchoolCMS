@@ -118,7 +118,7 @@ export default function GalleryUploader({ initialImages = [] }) {
             disabled={uploading}
             className="gallery-input"
           />
-          <span className="gallery-dropzone-text">
+          <span className="gallery-dropzone-text text-[#94a3b8]">
             Klik atau seret gambar untuk diupload
             <small>JPG, PNG, WebP · Maks 5MB</small>
           </span>

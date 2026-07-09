@@ -1,6 +1,7 @@
 import prisma from "lib/prisma";
 import Navbar from "@/components/public/Navbar";
 import TeacherCard from "@/components/public/TeacherCard";
+import ProfilePic from "../../../public/images/GemaBangsa.png";
 
 export const metadata = { title: "Guru & Staf" };
 
@@ -11,7 +12,7 @@ export default async function TeachersPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar schoolName="SMK Gema Bangsa" logoUrl={ProfilePic} />
       <main className="min-h-screen bg-[#f8fbff]">
         {/* Header */}
         <section className="bg-white border-b border-[#ddeef8] py-12 px-6">
