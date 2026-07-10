@@ -102,7 +102,7 @@ export default async function AdminGalleryPage() {
             <GalleryUploader />
           </div>
 
-          {/* Gallery card */}
+          {/* Preview Card */}
           <div className="bg-white rounded-2xl border border-[#ddeef8] shadow-sm p-6">
             {images.length === 0 ? (
               <div className="py-16 text-center">
