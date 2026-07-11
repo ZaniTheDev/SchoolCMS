@@ -58,3 +58,13 @@ model User {
   updatedAt DateTime @updatedAt
   Post      Post[]
 }
+
+model HeroSlide {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  caption   String?
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

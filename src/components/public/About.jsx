@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -90,14 +91,20 @@ const VALUES = [
 ];
 
 // ── Component ─────────────────────────────────────────────────────
-export default function AboutSection({ videoUrl }) {
+export default function AboutSection({
+  videoUrl,
+  visi = "Mewujudkan lembaga pendidikan kejuruan yang unggul, menghasilkan lulusan kompeten, berkarakter, dan siap bersaing di tingkat nasional maupun global.",
+  misi = "Menyelenggarakan pendidikan berbasis kompetensi dan praktik industri. Membangun karakter peserta didik yang berakhlak mulia, bertanggung jawab, dan berwawasan lingkungan. Menjalin kemitraan strategis dengan dunia usaha dan dunia industri (DUDI) untuk penyerapan lulusan.",
+}) {
   const sectionRef = useRef(null);
-  const badgeRef = useRef(null);
-  const headingRef = useRef(null);
-  const descRef = useRef(null);
+
+  // Refs for staggered animations
+  const introRef = useRef(null);
+  const visiMisiRef = useRef(null);
   const statsRef = useRef(null);
   const valuesRef = useRef(null);
   const videoRef = useRef(null);
+  const ctaRef = useRef(null);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia(
@@ -106,17 +113,9 @@ export default function AboutSection({ videoUrl }) {
     if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
-      const shared = {
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 75%",
-          once: true,
-        },
-      };
-
-      // Left column — stagger the children
+      // 1. Intro Text
       gsap.fromTo(
-        [badgeRef.current, headingRef.current, descRef.current],
+        introRef.current?.children ?? [],
         { opacity: 0, y: 28 },
         {
           opacity: 1,
@@ -124,26 +123,51 @@ export default function AboutSection({ videoUrl }) {
           duration: 0.6,
           ease: "power3.out",
           stagger: 0.12,
-          ...shared,
+          scrollTrigger: {
+            trigger: introRef.current,
+            start: "top 80%",
+            once: true,
+          },
         },
       );
 
-      // Stats row
+      // 2. Visi & Misi Cards
       gsap.fromTo(
-        statsRef.current?.children ?? [],
-        { opacity: 0, y: 20 },
+        visiMisiRef.current?.children ?? [],
+        { opacity: 0, y: 30 },
         {
           opacity: 1,
           y: 0,
-          duration: 0.5,
+          duration: 0.6,
           ease: "power3.out",
-          stagger: 0.1,
-          delay: 0.3,
-          ...shared,
+          stagger: 0.15,
+          scrollTrigger: {
+            trigger: visiMisiRef.current,
+            start: "top 80%",
+            once: true,
+          },
         },
       );
 
-      // Value cards
+      // 3. Full-width Stats
+      gsap.fromTo(
+        statsRef.current?.children ?? [],
+        { opacity: 0, scale: 0.9 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.5,
+          ease: "back.out(1.5)",
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: statsRef.current,
+            start: "top 85%",
+            once: true,
+          },
+        },
+      );
+
+      // 4. Values Grid
       gsap.fromTo(
         valuesRef.current?.children ?? [],
         { opacity: 0, y: 24 },
@@ -153,12 +177,15 @@ export default function AboutSection({ videoUrl }) {
           duration: 0.5,
           ease: "power3.out",
           stagger: 0.08,
-          delay: 0.5,
-          ...shared,
+          scrollTrigger: {
+            trigger: valuesRef.current,
+            start: "top 80%",
+            once: true,
+          },
         },
       );
 
-      // Video card
+      // 5. Video Card
       gsap.fromTo(
         videoRef.current,
         { opacity: 0, scale: 0.96, y: 20 },
@@ -168,10 +195,26 @@ export default function AboutSection({ videoUrl }) {
           y: 0,
           duration: 0.75,
           ease: "power3.out",
-          delay: 0.2,
           scrollTrigger: {
             trigger: videoRef.current,
             start: "top 80%",
+            once: true,
+          },
+        },
+      );
+
+      // 6. Bottom CTA
+      gsap.fromTo(
+        ctaRef.current,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ctaRef.current,
+            start: "top 90%",
             once: true,
           },
         },
@@ -188,7 +231,7 @@ export default function AboutSection({ videoUrl }) {
       style={{ backgroundColor: "#F0F7FF" }}
       aria-labelledby="about-heading"
     >
-      {/* ── Subtle background accents ── */}
+      {/* ── Background accents ── */}
       <div className="pointer-events-none select-none" aria-hidden="true">
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-px opacity-60"
@@ -205,13 +248,12 @@ export default function AboutSection({ videoUrl }) {
         />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* ── Two-column grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-          {/* ════ LEFT — Text content ════ */}
-          <div className="flex flex-col gap-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+        {/* ════ BLOCK 1: Intro & Visi Misi ════ */}
+        <div className="max-w-3xl">
+          <div ref={introRef} className="flex flex-col gap-6 mb-10">
             {/* Badge */}
-            <div ref={badgeRef} className="opacity-0">
+            <div className="opacity-0">
               <span
                 className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full"
                 style={{ backgroundColor: "#E0F0FB", color: "#0A6EBD" }}
@@ -225,135 +267,174 @@ export default function AboutSection({ videoUrl }) {
               </span>
             </div>
 
-            {/* Heading + description */}
-            <div className="flex flex-col gap-5">
-              <h2
-                id="about-heading"
-                ref={headingRef}
-                className="opacity-0 text-3xl sm:text-4xl lg:text-[2.6rem] font-bold leading-tight tracking-tight"
-                style={{ color: "#0D2D4E" }}
+            {/* Heading */}
+            <h2
+              id="about-heading"
+              className="opacity-0 text-3xl sm:text-4xl lg:text-[2.6rem] font-bold leading-tight tracking-tight"
+              style={{ color: "#0D2D4E" }}
+            >
+              Mendidik Generasi{" "}
+              <span
+                className="relative inline-block whitespace-nowrap"
+                style={{ color: "#0A6EBD" }}
               >
-                Mendidik Generasi{" "}
+                Pemimpin Masa Depan
                 <span
-                  className="relative inline-block whitespace-nowrap"
-                  style={{ color: "#0A6EBD" }}
+                  className="absolute left-0 -bottom-1 h-0.5 w-full rounded-full"
+                  style={{
+                    background: "linear-gradient(90deg, #06B6D4, transparent)",
+                  }}
+                  aria-hidden="true"
+                />
+              </span>
+            </h2>
+
+            {/* Description */}
+            <p
+              className="opacity-0 text-base sm:text-lg leading-relaxed"
+              style={{ color: "#4A6B8A" }}
+            >
+              Sejak berdiri, sekolah kami telah menjadi rumah bagi ribuan siswa
+              yang tumbuh menjadi individu berkarakter, berprestasi, dan siap
+              bersaing secara global. Kami percaya bahwa pendidikan yang baik
+              bukan hanya soal nilai — tetapi tentang membentuk manusia
+              seutuhnya.
+            </p>
+          </div>
+
+          {/* Visi & Misi Cards */}
+          <div
+            ref={visiMisiRef}
+            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+          >
+            <div
+              className="opacity-0 p-6 rounded-2xl border bg-white"
+              style={{ borderColor: "#C7DFEF" }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold"
+                  style={{ backgroundColor: "#0A6EBD", color: "#fff" }}
                 >
-                  Pemimpin Masa Depan
-                  <span
-                    className="absolute left-0 -bottom-1 h-0.5 w-full rounded-full"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, #06B6D4, transparent)",
-                    }}
-                    aria-hidden="true"
-                  />
-                </span>
-              </h2>
+                  V
+                </div>
+                <h3 className="text-lg font-bold" style={{ color: "#0D2D4E" }}>
+                  Visi
+                </h3>
+              </div>
               <p
-                ref={descRef}
-                className="opacity-0 text-base sm:text-lg leading-relaxed max-w-prose"
+                className="text-sm leading-relaxed"
                 style={{ color: "#4A6B8A" }}
               >
-                Sejak berdiri, sekolah kami telah menjadi rumah bagi ribuan
-                siswa yang tumbuh menjadi individu berkarakter, berprestasi, dan
-                siap bersaing secara global. Kami percaya bahwa pendidikan yang
-                baik bukan hanya soal nilai — tetapi tentang membentuk manusia
-                seutuhnya.
+                {visi}
               </p>
             </div>
-
-            {/* ── Stats ── */}
             <div
-              ref={statsRef}
-              className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-4"
-              role="list"
-              aria-label="Statistik sekolah"
+              className="opacity-0 p-6 rounded-2xl border bg-white"
+              style={{ borderColor: "#C7DFEF" }}
             >
-              {STATS.map(({ value, label }) => (
+              <div className="flex items-center gap-2 mb-3">
                 <div
-                  key={label}
-                  role="listitem"
-                  className="opacity-0 flex flex-col gap-1 p-4 rounded-xl border"
-                  style={{ backgroundColor: "#fff", borderColor: "#C7DFEF" }}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold"
+                  style={{ backgroundColor: "#06B6D4", color: "#fff" }}
                 >
-                  <span
-                    className="text-2xl font-bold tabular-nums"
-                    style={{ color: "#0A6EBD" }}
+                  M
+                </div>
+                <h3 className="text-lg font-bold" style={{ color: "#0D2D4E" }}>
+                  Misi
+                </h3>
+              </div>
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "#4A6B8A" }}
+              >
+                {misi}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* ════ BLOCK 2: Full-Width Stats Bar ════ */}
+        <div
+          ref={statsRef}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 sm:p-8 rounded-2xl border bg-white shadow-sm shadow-[#0A6EBD]/5"
+          style={{ borderColor: "#C7DFEF" }}
+          role="list"
+          aria-label="Statistik sekolah"
+        >
+          {STATS.map(({ value, label }) => (
+            <div
+              key={label}
+              role="listitem"
+              className="opacity-0 flex flex-col items-center text-center gap-1 p-4 rounded-xl border border-dashed"
+              style={{ borderColor: "#C7DFEF" }}
+            >
+              <span
+                className="text-3xl sm:text-4xl font-extrabold tabular-nums"
+                style={{ color: "#0A6EBD" }}
+              >
+                {value}
+              </span>
+              <span
+                className="text-xs font-medium uppercase tracking-wider"
+                style={{ color: "#4A6B8A" }}
+              >
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* ════ BLOCK 3: Values & Video ════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+          {/* Left: Values */}
+          <div>
+            <p
+              className="text-xs font-semibold uppercase tracking-widest mb-5"
+              style={{ color: "#4A6B8A" }}
+            >
+              Nilai Inti Kami
+            </p>
+            <div
+              ref={valuesRef}
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+              role="list"
+              aria-label="Nilai inti sekolah"
+            >
+              {VALUES.map(({ icon, title, description }) => (
+                <div
+                  key={title}
+                  role="listitem"
+                  className="opacity-0 group flex gap-4 p-4 rounded-xl border bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-[#93C5FD] hover:shadow-lg hover:shadow-[#0A6EBD]/5"
+                  style={{ borderColor: "#C7DFEF" }}
+                >
+                  <div
+                    className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: "#E0F0FB", color: "#0A6EBD" }}
+                    aria-hidden="true"
                   >
-                    {value}
-                  </span>
-                  <span
-                    className="text-xs leading-snug"
-                    style={{ color: "#4A6B8A" }}
-                  >
-                    {label}
-                  </span>
+                    {icon}
+                  </div>
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span
+                      className="text-sm font-semibold"
+                      style={{ color: "#0D2D4E" }}
+                    >
+                      {title}
+                    </span>
+                    <span
+                      className="text-xs leading-relaxed"
+                      style={{ color: "#4A6B8A" }}
+                    >
+                      {description}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
-
-            {/* ── Core values grid ── */}
-            <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-widest mb-4"
-                style={{ color: "#4A6B8A" }}
-              >
-                Nilai Inti
-              </p>
-              <div
-                ref={valuesRef}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-                role="list"
-                aria-label="Nilai inti sekolah"
-              >
-                {VALUES.map(({ icon, title, description }) => (
-                  <div
-                    key={title}
-                    role="listitem"
-                    className="opacity-0 group flex gap-4 p-4 rounded-xl border transition-all duration-200 hover:-translate-y-0.5"
-                    style={{
-                      backgroundColor: "#fff",
-                      borderColor: "#C7DFEF",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = "#93C5FD";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 16px 0 rgba(10,110,189,0.07)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = "#C7DFEF";
-                      e.currentTarget.style.boxShadow = "none";
-                    }}
-                  >
-                    {/* Icon bubble */}
-                    <div
-                      className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
-                      style={{ backgroundColor: "#E0F0FB", color: "#0A6EBD" }}
-                      aria-hidden="true"
-                    >
-                      {icon}
-                    </div>
-                    <div className="flex flex-col gap-0.5 min-w-0">
-                      <span
-                        className="text-sm font-semibold"
-                        style={{ color: "#0D2D4E" }}
-                      >
-                        {title}
-                      </span>
-                      <span
-                        className="text-xs leading-relaxed"
-                        style={{ color: "#4A6B8A" }}
-                      >
-                        {description}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* ════ RIGHT — Video card ════ */}
+          {/* Right: Sticky Video Card */}
           <div className="flex items-start justify-center lg:sticky lg:top-24">
             <div ref={videoRef} className="opacity-0 relative w-full max-w-lg">
               {/* Decorative offset frame */}
@@ -383,34 +464,26 @@ export default function AboutSection({ videoUrl }) {
                     />
                   </div>
                 ) : (
-                  /* Placeholder when no video is provided */
                   <div className="aspect-video flex flex-col items-center justify-center gap-4 px-8">
-                    {/* Play button ring */}
                     <div className="relative flex items-center justify-center">
                       <div
                         className="absolute w-20 h-20 rounded-full animate-ping opacity-20"
                         style={{ backgroundColor: "#06B6D4" }}
                         aria-hidden="true"
                       />
-                      <button
-                        type="button"
-                        className="relative w-16 h-16 rounded-full flex items-center justify-center transition-transform duration-200 hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-                        style={{
-                          backgroundColor: "#0A6EBD",
-                          outlineColor: "#06B6D4",
-                        }}
-                        aria-label="Putar video profil sekolah"
+                      <div
+                        className="relative w-16 h-16 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: "#0A6EBD" }}
                       >
                         <svg
                           viewBox="0 0 24 24"
                           fill="currentColor"
-                          className="w-6 h-6 translate-x-0.5"
-                          style={{ color: "#fff" }}
+                          className="w-6 h-6 translate-x-0.5 text-white"
                           aria-hidden="true"
                         >
                           <path d="M8 5v14l11-7z" />
                         </svg>
-                      </button>
+                      </div>
                     </div>
                     <span
                       className="text-sm font-medium text-center"
@@ -449,14 +522,10 @@ export default function AboutSection({ videoUrl }) {
                 </div>
               </div>
 
-              {/* Small floating accent card */}
+              {/* Floating accent card (visible to screen readers) */}
               <div
-                className="absolute -bottom-5 -left-5 z-20 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border shadow-lg"
-                style={{
-                  backgroundColor: "#fff",
-                  borderColor: "#C7DFEF",
-                }}
-                aria-hidden="true"
+                className="absolute -bottom-5 -left-5 z-20 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border shadow-lg bg-white"
+                style={{ borderColor: "#C7DFEF" }}
               >
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center"
@@ -488,6 +557,51 @@ export default function AboutSection({ videoUrl }) {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ════ BLOCK 4: Call to Action ════ */}
+        <div
+          ref={ctaRef}
+          className="opacity-0 flex flex-col sm:flex-row items-center justify-between gap-6 p-8 sm:p-10 rounded-2xl border bg-white shadow-sm"
+          style={{ borderColor: "#C7DFEF" }}
+        >
+          <div className="text-center sm:text-left">
+            <h3 className="text-xl font-bold mb-1" style={{ color: "#0D2D4E" }}>
+              Tertarik bergabung bersama kami?
+            </h3>
+            <p className="text-sm" style={{ color: "#4A6B8A" }}>
+              Jelajahi program keahlian dan proses pendaftaran siswa baru.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              href="/news"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0A6EBD]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A6EBD]"
+              style={{ backgroundColor: "#0A6EBD" }}
+            >
+              Lihat Berita
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
+              </svg>
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold border-2 border-[#C7DFEF] text-[#0D2D4E] bg-white/50 backdrop-blur-sm transition-all duration-200 hover:bg-[#E0F0FB] hover:border-[#0A6EBD]/40 hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A6EBD]"
+            >
+              Hubungi Kami
+            </Link>
           </div>
         </div>
       </div>

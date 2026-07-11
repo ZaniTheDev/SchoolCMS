@@ -63,3 +63,15 @@ body {
   border-radius: 8px;
   margin: 1rem 0;
 }
+@keyframes hero-slide-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-hero-progress {
+  animation: hero-slide-progress 6s linear forwards;
+}
