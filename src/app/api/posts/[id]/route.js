@@ -10,7 +10,7 @@ export async function GET(request, { params }) {
     const post = await prisma.post.findUnique({
       where: { id },
       include: {
-        author: {
+        User: {
           select: {
             id: true,
             name: true,
@@ -92,7 +92,7 @@ export async function PUT(request, { params }) {
           : existingPost.publishedAt,
       },
       include: {
-        author: {
+        User: {
           select: {
             id: true,
             name: true,
