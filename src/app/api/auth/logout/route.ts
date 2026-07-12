@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
         { status: 401 },
       );
     }
-
     // NextAuth handles client-side signOut by clearing cookies.
     // This endpoint confirms logout was called from an authenticated user.
     return NextResponse.json({

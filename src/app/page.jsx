@@ -5,6 +5,7 @@ import ProfilePic from "../../public/images/GemaBangsa.png";
 import About from "@/components/public/About";
 import FotoSekolah from "../../public/images/FotoSekolah.jpg";
 import prisma from "lib/prisma";
+import JurusanSection from "@/components/public/JurusanSection";
 
 export default async function HomePage() {
   const heroImages = await prisma.galleryImage.findMany({
@@ -21,6 +22,7 @@ export default async function HomePage() {
         images={heroImages}
       />
       <About />
+      <JurusanSection></JurusanSection>
     </>
   );
 }

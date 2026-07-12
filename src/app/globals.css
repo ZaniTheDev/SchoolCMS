@@ -75,3 +75,7 @@ body {
 .animate-hero-progress {
   animation: hero-slide-progress 6s linear forwards;
 }
+
+html {
+  scroll-behavior: smooth;
+}

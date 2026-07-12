@@ -255,7 +255,7 @@ export default function GalleryUploader({ initialImages = [] }) {
       {/* Gallery grid */}
       {images.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-slate-200 py-10 text-center text-sm text-slate-400">
-          Belum ada gambar di galeri.
+          Preview gambar akan tampil disini
         </p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">

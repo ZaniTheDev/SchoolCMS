@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import PostForm from "@/components/Admin/PostForm";
 import Link from "next/link";
 import LogoutButton from "@/components/Admin/LogoutButton";
+import AdminSidebar from "@/components/Admin/AdminSidebar";
 
 export const metadata = { title: "Buat Postingan — SchoolCMS Admin" };
 
@@ -16,69 +17,8 @@ export default async function NewPostPage() {
 
 function PostFormLayout({ session }) {
   return (
-    <div className="min-h-screen bg-[#f0f7ff]">
-      <aside className="fixed inset-y-0 left-0 w-64 bg-[#1e3a5f] flex flex-col z-30 hidden lg:flex">
-        <div className="px-6 py-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#06b6d4] flex items-center justify-center text-white font-bold text-base flex-shrink-0">
-              S
-            </div>
-            <div>
-              <p className="text-white font-bold text-sm leading-tight">
-                SchoolCMS
-              </p>
-              <p className="text-blue-300 text-xs">Panel Admin</p>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {[
-            { label: "Dashboard", href: "/admin", icon: "⊞" },
-            {
-              label: "Postingan",
-              href: "/admin/posts",
-              icon: "✏️",
-              active: true,
-            },
-            { label: "Guru & Staf", href: "/admin/teachers", icon: "👥" },
-            { label: "Acara", href: "/admin/events", icon: "📅" },
-            { label: "Galeri", href: "/admin/gallery", icon: "🖼️" },
-            { label: "Pengaturan", href: "/admin/settings", icon: "⚙️" },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 ${
-                item.active
-                  ? "bg-[#06b6d4] text-white"
-                  : "text-blue-200 hover:bg-white/10 hover:text-white"
-              }`}
-            >
-              <span className="text-base w-5 text-center">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="px-4 py-5 border-t border-white/10">
-          <div className="flex items-center justify-between gap-3 px-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-8 h-8 rounded-full bg-[#06b6d4]/30 flex items-center justify-center text-blue-200 text-xs font-bold flex-shrink-0">
-                {session.user.name?.charAt(0).toUpperCase() ?? "AD"}
-              </div>
-              <div className="min-w-0">
-                <p className="text-white text-xs font-semibold truncate">
-                  {session.user.name || "Administrator"}
-                </p>
-                <p className="text-blue-400 text-xs truncate">
-                  {session.user.email}
-                </p>
-              </div>
-            </div>
-            <LogoutButton />
-          </div>
-        </div>
-      </aside>
-
+    <>
+      <AdminSidebar />
       <main className="lg:pl-64">
         <div className="px-4 py-6 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-6">
           <div className="flex items-center gap-3">
@@ -96,6 +36,6 @@ function PostFormLayout({ session }) {
           <PostForm />
         </div>
       </main>
-    </div>
+    </>
   );
 }

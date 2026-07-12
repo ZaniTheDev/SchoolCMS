@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -12,7 +13,7 @@ const STATS = [
   { value: "25+", label: "Tahun Berdiri" },
   { value: "1.800", label: "Siswa Aktif" },
   { value: "120", label: "Guru Tersertifikasi" },
-  { value: "98%", label: "Tingkat Kelulusan" },
+  { value: "15+", label: "Mitra Industri" }, // ★ SMK specific stat
 ];
 
 const VALUES = [
@@ -27,12 +28,12 @@ const VALUES = [
         strokeLinejoin="round"
         className="w-5 h-5"
       >
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
       </svg>
     ),
-    title: "Keunggulan",
+    title: "Relevansi Industri",
     description:
-      "Mendorong setiap siswa melampaui batas potensi diri melalui standar akademik tertinggi.",
+      "Kurikulum yang dirancang bersama dunia usaha dan industri untuk memastikan keterampilan siswa selalu mutakhir.",
   },
   {
     icon: (
@@ -45,12 +46,12 @@ const VALUES = [
         strokeLinejoin="round"
         className="w-5 h-5"
       >
-        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        <path d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085" />
       </svg>
     ),
-    title: "Inovasi",
+    title: "Keterampilan Praktis",
     description:
-      "Menerapkan metode pembelajaran mutakhir yang relevan dengan tantangan era digital.",
+      "Pembelajaran berbasis praktek di laboratorium modern dan langsung terjun ke lapangan industri.",
   },
   {
     icon: (
@@ -68,7 +69,7 @@ const VALUES = [
     ),
     title: "Integritas",
     description:
-      "Membangun karakter jujur, bertanggung jawab, dan beretika sebagai fondasi kehidupan.",
+      "Membangun karakter jujur, bertanggung jawab, dan beretika sebagai fondasi kehidupan dan bekerja.",
   },
   {
     icon: (
@@ -81,25 +82,32 @@ const VALUES = [
         strokeLinejoin="round"
         className="w-5 h-5"
       >
-        <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0" />
       </svg>
     ),
-    title: "Komunitas",
+    title: "Kesiapan Kerja",
     description:
-      "Mempererat hubungan antara sekolah, keluarga, dan masyarakat dalam satu ekosistem pendidikan.",
+      "Program magang dan penyaluran kerja yang terstruktur untuk memastikan lulusan terserap industri.",
   },
 ];
 
 // ── Component ─────────────────────────────────────────────────────
 export default function AboutSection({
   videoUrl,
+  principalName = "Drs. Bambang Supriyadi, M.Pd.",
+  principalPhoto = null,
+  principalQuote = "Pendidikan kejuruan bukan sekadar transfer ilmu, tapi membentuk karakter dan keterampilan yang siap menghadapi tantangan dunia nyata.",
   visi = "Mewujudkan lembaga pendidikan kejuruan yang unggul, menghasilkan lulusan kompeten, berkarakter, dan siap bersaing di tingkat nasional maupun global.",
-  misi = "Menyelenggarakan pendidikan berbasis kompetensi dan praktik industri. Membangun karakter peserta didik yang berakhlak mulia, bertanggung jawab, dan berwawasan lingkungan. Menjalin kemitraan strategis dengan dunia usaha dan dunia industri (DUDI) untuk penyerapan lulusan.",
+  misi = [
+    "Menyelenggarakan pendidikan berbasis kompetensi dan praktik industri.",
+    "Membangun karakter peserta didik yang berakhlak mulia, bertanggung jawab, dan berwawasan lingkungan.",
+    "Menjalin kemitraan strategis dengan dunia usaha dan dunia industri (DUDI) untuk penyerapan lulusan.",
+  ],
 }) {
   const sectionRef = useRef(null);
 
-  // Refs for staggered animations
   const introRef = useRef(null);
+  const principalRef = useRef(null); // ★ New ref for principal
   const visiMisiRef = useRef(null);
   const statsRef = useRef(null);
   const valuesRef = useRef(null);
@@ -131,7 +139,25 @@ export default function AboutSection({
         },
       );
 
-      // 2. Visi & Misi Cards
+      // ★ 2. Principal Section (Staggered slide-in)
+      gsap.fromTo(
+        principalRef.current?.children ?? [],
+        { opacity: 0, x: -30 },
+        {
+          opacity: 1,
+          x: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          stagger: 0.2,
+          scrollTrigger: {
+            trigger: principalRef.current,
+            start: "top 85%",
+            once: true,
+          },
+        },
+      );
+
+      // 3. Visi & Misi Cards
       gsap.fromTo(
         visiMisiRef.current?.children ?? [],
         { opacity: 0, y: 30 },
@@ -149,7 +175,7 @@ export default function AboutSection({
         },
       );
 
-      // 3. Full-width Stats
+      // 4. Full-width Stats
       gsap.fromTo(
         statsRef.current?.children ?? [],
         { opacity: 0, scale: 0.9 },
@@ -167,7 +193,7 @@ export default function AboutSection({
         },
       );
 
-      // 4. Values Grid
+      // 5. Values Grid
       gsap.fromTo(
         valuesRef.current?.children ?? [],
         { opacity: 0, y: 24 },
@@ -185,7 +211,7 @@ export default function AboutSection({
         },
       );
 
-      // 5. Video Card
+      // 6. Video Card
       gsap.fromTo(
         videoRef.current,
         { opacity: 0, scale: 0.96, y: 20 },
@@ -203,7 +229,7 @@ export default function AboutSection({
         },
       );
 
-      // 6. Bottom CTA
+      // 7. Bottom CTA
       gsap.fromTo(
         ctaRef.current,
         { opacity: 0, y: 20 },
@@ -249,10 +275,9 @@ export default function AboutSection({
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
-        {/* ════ BLOCK 1: Intro & Visi Misi ════ */}
+        {/* ════ BLOCK 1: Intro & Principal ════ */}
         <div className="max-w-3xl">
           <div ref={introRef} className="flex flex-col gap-6 mb-10">
-            {/* Badge */}
             <div className="opacity-0">
               <span
                 className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full"
@@ -267,7 +292,6 @@ export default function AboutSection({
               </span>
             </div>
 
-            {/* Heading */}
             <h2
               id="about-heading"
               className="opacity-0 text-3xl sm:text-4xl lg:text-[2.6rem] font-bold leading-tight tracking-tight"
@@ -289,7 +313,6 @@ export default function AboutSection({
               </span>
             </h2>
 
-            {/* Description */}
             <p
               className="opacity-0 text-base sm:text-lg leading-relaxed"
               style={{ color: "#4A6B8A" }}
@@ -300,6 +323,61 @@ export default function AboutSection({
               bukan hanya soal nilai — tetapi tentang membentuk manusia
               seutuhnya.
             </p>
+          </div>
+
+          {/* ★ Kepala Sekolah Section */}
+          <div
+            ref={principalRef}
+            className="flex flex-col sm:flex-row items-start gap-5 p-6 rounded-2xl border bg-white mb-10"
+            style={{ borderColor: "#C7DFEF" }}
+          >
+            <div className="opacity-0 flex-shrink-0">
+              {principalPhoto ? (
+                <Image
+                  src={principalPhoto}
+                  alt={`Foto ${principalName}`}
+                  width={64}
+                  height={64}
+                  className="w-16 h-16 rounded-full object-cover border-2 shadow-sm"
+                  style={{ borderColor: "#C7DFEF" }}
+                />
+              ) : (
+                <div
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-[#BAE6FD] to-[#93C5FD] border-2 flex items-center justify-center shadow-sm"
+                  style={{ borderColor: "#C7DFEF" }}
+                >
+                  <svg
+                    className="w-7 h-7 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <div className="opacity-0">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-2">
+                <h3
+                  className="text-base font-bold"
+                  style={{ color: "#0D2D4E" }}
+                >
+                  {principalName}
+                </h3>
+                <span
+                  className="text-xs font-semibold px-2 py-0.5 rounded-full w-fit"
+                  style={{ backgroundColor: "#E0F0FB", color: "#0A6EBD" }}
+                >
+                  Kepala Sekolah
+                </span>
+              </div>
+              <blockquote
+                className="text-sm leading-relaxed italic pl-4 border-l-2"
+                style={{ color: "#4A6B8A", borderColor: "#06B6D4" }}
+              >
+                &ldquo;{principalQuote}&rdquo;
+              </blockquote>
+            </div>
           </div>
 
           {/* Visi & Misi Cards */}
@@ -344,12 +422,20 @@ export default function AboutSection({
                   Misi
                 </h3>
               </div>
-              <p
-                className="text-sm leading-relaxed"
+              {/* ★ Formatted as a list */}
+              <ol
+                className="space-y-2 text-sm leading-relaxed"
                 style={{ color: "#4A6B8A" }}
               >
-                {misi}
-              </p>
+                {misi.map((item, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="font-bold text-[#0A6EBD] flex-shrink-0">
+                      {i + 1}.
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </div>
@@ -435,9 +521,9 @@ export default function AboutSection({
           </div>
 
           {/* Right: Sticky Video Card */}
-          <div className="flex items-start justify-center lg:sticky lg:top-24">
+          {/* ★ Added mb-16 to prevent sticky overlap with CTA */}
+          <div className="flex items-start justify-center lg:sticky lg:top-24 mb-16">
             <div ref={videoRef} className="opacity-0 relative w-full max-w-lg">
-              {/* Decorative offset frame */}
               <div
                 className="absolute -inset-3 rounded-2xl opacity-40"
                 style={{
@@ -448,7 +534,6 @@ export default function AboutSection({
                 aria-hidden="true"
               />
 
-              {/* Video card */}
               <div
                 className="relative z-10 rounded-2xl overflow-hidden shadow-xl border"
                 style={{ borderColor: "#C7DFEF", backgroundColor: "#0D2D4E" }}
@@ -494,7 +579,6 @@ export default function AboutSection({
                   </div>
                 )}
 
-                {/* Bottom info bar */}
                 <div
                   className="flex items-center gap-3 px-5 py-3 border-t"
                   style={{
@@ -522,7 +606,6 @@ export default function AboutSection({
                 </div>
               </div>
 
-              {/* Floating accent card (visible to screen readers) */}
               <div
                 className="absolute -bottom-5 -left-5 z-20 flex items-center gap-2.5 px-4 py-2.5 rounded-xl border shadow-lg bg-white"
                 style={{ borderColor: "#C7DFEF" }}
@@ -575,12 +658,13 @@ export default function AboutSection({
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
+            {/* ★ Fixed CTA to match the text */}
             <Link
-              href="/news"
+              href="/jurusan"
               className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0A6EBD]/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0A6EBD]"
               style={{ backgroundColor: "#0A6EBD" }}
             >
-              Lihat Berita
+              Lihat Jurusan
               <svg
                 className="w-4 h-4"
                 fill="none"
